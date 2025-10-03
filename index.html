@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Loi Krathong — Create & Float</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <!-- Optional: Firebase (uncomment if you will use realtime sync)
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  -->
+</head>
+<body>
+  <header class="topbar">
+    <h1>ลอยกระทงออนไลน์ (Loi Krathong)</h1>
+    <div class="status" id="status">Local demo</div>
+  </header>
+
+  <main class="layout">
+    <section class="editor">
+      <h2>ตกแต่งกระทง (Design your Krathong)</h2>
+
+      <label>วัสดุฐาน (Base material):</label>
+      <div class="options" id="baseOptions">
+        <!-- populated by JS -->
+      </div>
+
+      <label>ดอกไม้ (Flowers):</label>
+      <div class="options multi" id="flowerOptions">
+        <!-- populated by JS -->
+      </div>
+
+      <label for="candleCount">จำนวนเทียน (Candles): <span id="candleLabel">1</span></label>
+      <input type="range" id="candleCount" min="0" max="9" value="1"/>
+
+      <label for="wish">คำอธิษฐาน (Blessing):</label>
+      <input id="wish" maxlength="40" placeholder="ใส่คำอธิษฐานสั้น ๆ (Short wish)"/>
+
+      <div class="actions">
+        <button id="previewBtn">ตัวอย่าง (Preview)</button>
+        <button class="primary" id="floatBtn">ปล่อยลอย (Float)</button>
+        <button id="clearLocalBtn" class="danger">ล้างหน้าจอ (Clear Local)</button>
+      </div>
+
+      <details class="advanced">
+        <summary>Realtime (Optional)</summary>
+        <p>ใส่ค่า <code>Firebase Config</code> เพื่อให้ลอยร่วมกันแบบหลายคน (multi‑user).</p>
+        <textarea id="firebaseConfig" placeholder='{"apiKey":"...","authDomain":"...","projectId":"..."}'></textarea>
+        <button id="connectFirebaseBtn">Connect Firebase</button>
+      </details>
+
+      <p class="hint">แชร์ลิงก์นี้แล้วทำ QR ได้เลย ผู้ใช้สแกนแล้วเข้าหน้าเว็บนี้.</p>
+    </section>
+
+    <section class="river-wrap">
+      <div class="river-bg"></div>
+      <div class="river" id="river">
+        <!-- floating krathongs get appended here -->
+      </div>
+    </section>
+  </main>
+
+  <template id="krathongTemplate">
+    <div class="krathong" data-id="">
+      <div class="base"></div>
+      <div class="decor flowers"></div>
+      <div class="decor candles"></div>
+      <div class="wish"></div>
+      <div class="glow"></div>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
