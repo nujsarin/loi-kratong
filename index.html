@@ -14,7 +14,7 @@
         body {
             font-family: 'Sarabun', sans-serif;
             background-color: #03193A;
-            overflow-x: hidden;
+            overflow: hidden; /* Changed from overflow-x: hidden to prevent all scrollbars */
         }
 
         /* Styling for selected items */
@@ -24,7 +24,6 @@
             box-shadow: 0 0 20px #FBBF24;
         }
         
-        /* The river where krathongs float */
         #river {
             position: absolute;
             bottom: 0;
@@ -36,7 +35,6 @@
             z-index: 1;
         }
 
-        /* Wave animations */
         .wave {
             background: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23333' stroke-width='0'/%3e%3c/svg%3e");
             position: absolute;
@@ -69,30 +67,74 @@
             100% { transform: translateX(-50%); }
         }
 
-        /* Floating animation for the krathong */
-        @keyframes float-away {
-            0% {
-                bottom: 5%;
-                opacity: 1;
-                transform: translateX(-50%) scale(0.8);
-            }
-            100% {
-                bottom: 80%;
-                opacity: 0;
-                transform: translateX(calc(-50% + var(--float-direction, 0px))) scale(0.1);
-            }
-        }
-
-        .floating-krathong {
+        /* NEW: Horizontal floating animation */
+        .floating-unit {
             position: absolute;
-            left: 50%;
-            animation: float-away 15s linear forwards;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation-timing-function: linear;
+            animation-iteration-count: 1;
             z-index: 12;
-            width: 200px; /* Base size */
-            height: auto;
+            will-change: transform; /* Performance improvement */
+        }
+        .floating-unit.left-to-right {
+            left: -350px; /* Start off-screen left */
+            animation-name: float-across-ltr;
+        }
+        .floating-unit.right-to-left {
+            right: -350px; /* Start off-screen right */
+            flex-direction: row-reverse; /* Flip order for right-to-left */
+            animation-name: float-across-rtl;
         }
 
-        /* Simple firework animation */
+        @keyframes float-across-ltr {
+            to { transform: translateX(calc(100vw + 400px)); }
+        }
+        @keyframes float-across-rtl {
+            to { transform: translateX(calc(-100vw - 400px)); }
+        }
+        
+        .floating-krathong-image {
+            position: relative;
+            width: 120px;
+            height: auto;
+            animation: bob 4s ease-in-out infinite;
+        }
+
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* NEW: Speech bubble for text */
+        .krathong-bubble {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            width: max-content;
+            max-width: 250px;
+            position: relative;
+        }
+        .krathong-bubble p { margin: 0; }
+        .krathong-bubble .wish-text {
+            font-size: 1rem;
+            word-wrap: break-word;
+        }
+        .krathong-bubble .name-text {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #555;
+            text-align: right;
+            margin-top: 8px;
+        }
+        .krathong-bubble .name-text::before {
+            content: 'จาก: ';
+        }
+
+
         .firework {
             position: absolute;
             width: 6px;
@@ -109,12 +151,34 @@
             80% { opacity: 1; }
             100% { transform: scale(30); opacity: 0; }
         }
+        
+        /* NEW: Floating lantern (Khom Loi) animation */
+        .khom-loi {
+            position: absolute;
+            bottom: -100px; /* Start from bottom */
+            animation: float-up linear forwards;
+            will-change: transform, opacity;
+        }
+        @keyframes float-up {
+            0% {
+                transform: translateY(0);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body class="text-white">
 
-    <!-- River and background elements container -->
     <div id="river-container" class="fixed inset-0 w-full h-full">
+         <!-- NEW: Scenery container -->
+        <div id="scenery-container" class="absolute inset-0 z-5 pointer-events-none">
+            <img src="https://raw.githubusercontent.com/nujsarin/loi-kratong/main/watarun.svg" class="absolute bottom-[28%] left-1/2 -translate-x-1/2 w-full max-w-4xl opacity-50">
+            <img src="https://raw.githubusercontent.com/nujsarin/loi-kratong/main/moon.png" class="absolute top-[10%] right-[15%] w-32 h-32 opacity-80">
+        </div>
         <div id="river">
             <div class="wave one"></div>
             <div class="wave two"></div>
@@ -122,29 +186,19 @@
         <div id="fireworks-container" class="absolute inset-0 z-0"></div>
     </div>
     
-    <!-- Main content container -->
     <div id="main-content" class="relative min-h-screen flex flex-col items-center justify-between p-4 z-20">
-
-        <!-- Header -->
         <header class="text-center py-4 md:py-8">
             <h1 class="text-3xl md:text-5xl font-bold text-yellow-300 drop-shadow-lg">ลอยกระทงออนไลน์ ๒๕๖๘</h1>
             <p class="text-lg md:text-xl text-cyan-200 mt-2">ร่วมอธิษฐาน ขอขมาพระแม่คงคา และสืบสานประเพณีไทย</p>
         </header>
 
-        <!-- Main Interaction Area -->
         <main class="w-full max-w-5xl bg-black bg-opacity-40 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-2xl border border-white/20">
-
-            <!-- Step 1: Choose Krathong -->
             <div>
                 <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๑. เลือกกระทงของคุณ</h2>
                 <div id="krathong-selection" class="grid grid-cols-3 md:grid-cols-5 gap-4">
-                    <!-- Krathong options will be dynamically inserted here -->
                 </div>
             </div>
-
-            <!-- Step 2: Customize -->
             <div class="mt-8 grid md:grid-cols-2 gap-8">
-                <!-- Inputs: Name and Wish -->
                 <div>
                      <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๒. ใส่ชื่อและคำอธิษฐาน</h2>
                     <div class="space-y-4">
@@ -152,8 +206,6 @@
                         <textarea id="user-wish" rows="4" placeholder="ใส่คำอธิษฐาน..." class="w-full bg-gray-900/50 border border-white/30 rounded-lg px-4 py-2 placeholder-gray-400 focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"></textarea>
                     </div>
                 </div>
-
-                <!-- Decoration -->
                  <div>
                     <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๓. ตกแต่งกระทง</h2>
                     <div class="flex items-center justify-center bg-gray-900/50 border border-white/30 rounded-lg p-4 h-full">
@@ -164,8 +216,6 @@
                     </div>
                  </div>
             </div>
-            
-            <!-- Step 3: Launch button -->
             <div class="mt-8 text-center">
                  <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๔. ลอยกระทง</h2>
                 <button id="launch-button" class="bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-bold text-xl px-12 py-4 rounded-full shadow-lg transform hover:scale-105 transition duration-300 ease-in-out">
@@ -174,56 +224,40 @@
             </div>
         </main>
         
-        <!-- Footer -->
         <footer class="py-4 text-center text-sm text-white/60">
             <p>&copy; 2568 - สร้างสรรค์โดย Gemini</p>
         </footer>
     </div>
 
-    <!-- Floating UI -->
     <div id="floating-view" class="hidden z-30 fixed top-5 left-5">
         <button id="back-button" class="bg-cyan-500 hover:bg-cyan-400 text-white font-bold px-6 py-2 rounded-full shadow-lg">
             &larr; กลับไปสร้างกระทง
         </button>
     </div>
     
-    <!-- Message display -->
     <div id="message-box" class="hidden fixed top-5 right-5 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50">
         <p>กรุณาเลือกกระทงก่อน</p>
     </div>
 
     <script type="module">
-        // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- CONFIGURATION ---
         const GITHUB_IMAGE_PATH = 'https://raw.githubusercontent.com/nujsarin/loi-kratong/main/';
-        const krathongImages = [
-            'unnamed (1).png', 'unnamed (2).png', 'unnamed (3).png', 'unnamed (4).png', 'unnamed (5).png'
-        ];
-        // Assuming you will add 'candle.png' to your repository
+        const krathongImages = ['unnamed (1).png', 'unnamed (2).png', 'unnamed (3).png', 'unnamed (4).png', 'unnamed (5).png'];
         const candleImageSrc = `${GITHUB_IMAGE_PATH}candle.png`; 
+        const khomLoiImageSrc = `https://raw.githubusercontent.com/nujsarin/loi-kratong/main/khomloi.png`;
         const NUM_FIREWORKS = 15;
+        const NUM_LANTERNS = 10;
         
-        // This configuration is public and safe to expose.
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-loy-krathong';
 
         async function main() {
-            // --- STATE ---
             let selectedKrathongSrc = null;
             let db;
 
-            // --- DOM ELEMENTS ---
             const krathongSelectionContainer = document.getElementById('krathong-selection');
             const launchButton = document.getElementById('launch-button');
             const riverContainer = document.getElementById('river-container');
@@ -232,14 +266,20 @@
             const mainContent = document.getElementById('main-content');
             const floatingView = document.getElementById('floating-view');
             const backButton = document.getElementById('back-button');
+            const sceneryContainer = document.getElementById('scenery-container');
 
-            // --- FIREBASE INITIALIZATION ---
             try {
+                if (!firebaseConfig.apiKey) throw new Error("Firebase config is not available.");
                 const app = initializeApp(firebaseConfig);
                 const auth = getAuth(app);
                 db = getFirestore(app);
-                await signInAnonymously(auth);
-                console.log("Firebase initialized and user signed in anonymously.");
+                
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                console.log("Firebase initialized and user signed in.");
                 listenForKrathongs();
             } catch (error) {
                 console.error("Firebase initialization failed:", error);
@@ -247,12 +287,11 @@
             }
 
             // --- UI INITIALIZATION ---
-            // Populate Krathong choices
             krathongImages.forEach((imgName, index) => {
                 const fullSrc = `${GITHUB_IMAGE_PATH}${imgName}`;
                 const div = document.createElement('div');
-                div.className = 'cursor-pointer p-2 bg-white/10 rounded-lg hover:bg-white/20 transition duration-300';
-                div.innerHTML = `<img src="${fullSrc}" alt="กระทงแบบที่ ${index + 1}" class="w-full h-auto rounded-md" onerror="this.style.display='none'">`;
+                div.className = 'cursor-pointer p-2 rounded-lg transition duration-300 flex items-center justify-center h-32';
+                div.innerHTML = `<img src="${fullSrc}" alt="กระทงแบบที่ ${index + 1}" class="max-w-full max-h-full" onerror="this.style.display='none'">`;
                 div.addEventListener('click', () => {
                     document.querySelectorAll('#krathong-selection div').forEach(el => el.classList.remove('selected-krathong'));
                     div.classList.add('selected-krathong');
@@ -261,7 +300,6 @@
                 krathongSelectionContainer.appendChild(div);
             });
             
-            // Create and launch fireworks
             for (let i = 0; i < NUM_FIREWORKS; i++) {
                 const firework = document.createElement('div');
                 firework.className = 'firework';
@@ -271,35 +309,36 @@
                 fireworksContainer.appendChild(firework);
             }
 
-            // --- EVENT LISTENERS ---
+            for (let i = 0; i < NUM_LANTERNS; i++) {
+                const lantern = document.createElement('img');
+                lantern.src = khomLoiImageSrc;
+                lantern.className = 'khom-loi';
+                const size = Math.random() * 50 + 40; // 40px to 90px
+                lantern.style.width = `${size}px`;
+                lantern.style.left = `${Math.random() * 100}%`;
+                const duration = Math.random() * 20 + 30; // 30-50 seconds
+                lantern.style.animationDuration = `${duration}s`;
+                lantern.style.animationDelay = `${Math.random() * duration}s`;
+                sceneryContainer.appendChild(lantern);
+            }
+
             launchButton.addEventListener('click', handleLaunch);
             backButton.addEventListener('click', () => {
                 mainContent.classList.remove('hidden');
                 floatingView.classList.add('hidden');
             });
 
-            // --- FUNCTIONS ---
             async function handleLaunch() {
                 if (!selectedKrathongSrc) {
                     showMessage('กรุณาเลือกกระทงของคุณก่อนลอย');
                     return;
                 }
-
                 const name = document.getElementById('user-name').value;
                 const wish = document.getElementById('user-wish').value;
                 const addCandle = document.getElementById('add-candle').checked;
-                
-                const krathongData = {
-                    krathongSrc: selectedKrathongSrc,
-                    name: name,
-                    wish: wish,
-                    hasCandle: addCandle,
-                    createdAt: serverTimestamp(),
-                    randomDrift: (Math.random() - 0.5) * 200 // Pre-calculate drift
-                };
-
+                const krathongData = { krathongSrc, name, wish, hasCandle, createdAt: serverTimestamp() };
                 try {
-                    await addDoc(collection(db, "krathongs"), krathongData);
+                    await addDoc(collection(db, `/artifacts/${appId}/public/data/krathongs`), krathongData);
                     mainContent.classList.add('hidden');
                     floatingView.classList.remove('hidden');
                 } catch (e) {
@@ -309,62 +348,64 @@
             }
 
             function listenForKrathongs() {
-                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-                const q = query(collection(db, "krathongs"), where("createdAt", ">", fiveMinutesAgo));
-
+                const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+                const collectionPath = `/artifacts/${appId}/public/data/krathongs`;
+                const q = query(collection(db, collectionPath), where("createdAt", ">", tenMinutesAgo));
                 onSnapshot(q, (snapshot) => {
                     snapshot.docChanges().forEach((change) => {
-                        if (change.type === "added") {
-                           createAndFloatKrathong(change.doc.data());
-                        }
+                        if (change.type === "added") createAndFloatKrathong(change.doc.data());
                     });
-                });
+                }, (error) => console.error("Error listening to krathongs:", error));
             }
             
             function createAndFloatKrathong(data) {
-                const { krathongSrc, name, wish, hasCandle, randomDrift } = data;
+                const { krathongSrc, name, wish, hasCandle } = data;
                 
-                const krathongContainer = document.createElement('div');
-                krathongContainer.className = 'floating-krathong';
-                krathongContainer.style.setProperty('--float-direction', `${randomDrift || 0}px`);
+                const unit = document.createElement('div');
+                unit.className = 'floating-unit';
+                
+                const direction = Math.random() > 0.5 ? 'left-to-right' : 'right-to-left';
+                const duration = Math.random() * 15 + 25; // 25-40 seconds
+                const startY = Math.random() * 40 + 5; // 5% to 45% from the bottom
+                unit.style.bottom = `${startY}%`;
+                unit.style.animationDuration = `${duration}s`;
+                unit.classList.add(direction);
 
+                const krathongContainer = document.createElement('div');
+                krathongContainer.className = 'floating-krathong-image';
                 const krathongImg = document.createElement('img');
                 krathongImg.src = krathongSrc;
-                krathongImg.alt = 'กระทงลอยน้ำ';
                 krathongContainer.appendChild(krathongImg);
                 
                 if(hasCandle) {
                     const candleImg = document.createElement('img');
                     candleImg.src = candleImageSrc;
-                    candleImg.alt = '';
                     candleImg.className = 'absolute w-1/2 top-[-30%] left-1/2 -translate-x-1/2';
+                    candleImg.onerror = () => { candleImg.style.display = 'none'; };
                     krathongContainer.appendChild(candleImg);
                 }
 
-                const textContainer = document.createElement('div');
-                textContainer.className = 'absolute -top-12 left-1/2 -translate-x-1/2 w-max max-w-xs text-center p-2 bg-black/50 rounded-md';
+                const bubble = document.createElement('div');
+                if (name || wish) {
+                    bubble.className = 'krathong-bubble';
+                    if (wish) {
+                        const wishEl = document.createElement('p');
+                        wishEl.className = 'wish-text';
+                        wishEl.textContent = wish;
+                        bubble.appendChild(wishEl);
+                    }
+                    if (name) {
+                        const nameEl = document.createElement('p');
+                        nameEl.className = 'name-text';
+                        nameEl.textContent = name;
+                        bubble.appendChild(nameEl);
+                    }
+                    unit.appendChild(bubble);
+                }
                 
-                if (name) {
-                    const nameEl = document.createElement('p');
-                    nameEl.className = 'font-bold text-yellow-300 text-sm';
-                    nameEl.textContent = name;
-                    textContainer.appendChild(nameEl);
-                }
-
-                if (wish) {
-                     const wishEl = document.createElement('p');
-                     wishEl.className = 'text-xs text-white';
-                     wishEl.textContent = wish;
-                     textContainer.appendChild(wishEl);
-                }
-
-                if(name || wish) {
-                    krathongContainer.appendChild(textContainer);
-                }
-
-                riverContainer.appendChild(krathongContainer);
-
-                setTimeout(() => krathongContainer.remove(), 15000);
+                unit.appendChild(krathongContainer);
+                riverContainer.appendChild(unit);
+                setTimeout(() => unit.remove(), duration * 1000);
             }
 
             function showMessage(text, isError = false) {
@@ -374,8 +415,6 @@
                 setTimeout(() => messageBox.classList.add('hidden'), 3000);
             }
         }
-
-        // Run the app
         main();
     </script>
 </body>
