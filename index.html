@@ -1,426 +1,674 @@
+<!--
+    README: วิธีการ Deploy บน GitHub Pages
+    1. สร้าง Repository ใหม่บน GitHub (ตั้งค่าเป็น Public)
+    2. อัปโหลดไฟล์ index.html นี้ลงใน Repository
+    3. ไปที่แท็บ Settings > Pages ของ Repository
+    4. ในส่วน Build and deployment, เลือก Source เป็น "Deploy from a branch"
+    5. เลือก Branch: main และ Folder: / (root) แล้วกด Save
+    6. รอสักครู่ GitHub จะสร้างลิงก์ให้คุณ สามารถเข้าใช้งานเว็บแอปได้จากลิงก์นั้น
+-->
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ลอยกระทงออนไลน์ 2568</title>
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts for Thai characters -->
+    <title>ลอยกระทงออนไลน์ 🌕</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Sarabun', sans-serif;
-            /* MODIFICATION: New background gradient for a richer night sky */
-            background: linear-gradient(to bottom, #0b022e, #2a0a5e);
-            overflow: hidden; /* Changed from overflow-x: hidden to prevent all scrollbars */
+        /* SECTION: General Styling & Theme */
+        :root {
+            --water-dark: #011a30;
+            --water-light: #003d73;
+            --ui-bg: rgba(12, 23, 45, 0.7);
+            --text-light: #f0f8ff;
+            --text-dark: #0a192f;
+            --accent-gold: #ffdf85;
+            --glow-color: #ffc400;
+            --font-main: 'Sarabun', sans-serif;
         }
 
-        /* Styling for selected items */
-        .selected-krathong {
-            transform: scale(1.05);
-            border: 4px solid #FBBF24; /* amber-400 */
-            box-shadow: 0 0 20px #FBBF24;
-        }
-        
-        #river {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 70%;
-            /* MODIFICATION: New river gradient to blend with the new sky */
-            background: linear-gradient(to top, #3b207a, transparent);
-            overflow: hidden;
-            z-index: 1;
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        .wave {
-            background: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23333' stroke-width='0'/%3e%3c/svg%3e");
-            position: absolute;
-            width: 200%;
+        html, body {
             height: 100%;
-            background-repeat: repeat-x;
-            background-size: 50% 100px;
-            bottom: 0;
+            overflow: hidden;
+            font-family: var(--font-main);
+            background-color: var(--water-dark);
         }
 
-        .wave.one {
-            background-image: url('https://s.isanook.com/an/0/loykrathong/static/images/2024/bg/wave-1.webp');
-            animation: wave 25s linear infinite;
-            opacity: 0.8;
-            z-index: 15;
-            height: 150px;
-        }
-
-        .wave.two {
-            background-image: url('https://s.isanook.com/an/0/loykrathong/static/images/2024/bg/wave-2.webp');
-            animation: wave 20s linear infinite;
-            opacity: 0.6;
-            z-index: 10;
-            bottom: 10px;
-             height: 150px;
-        }
-
-        @keyframes wave {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        /* NEW: Horizontal floating animation */
-        .floating-unit {
-            position: absolute;
+        body {
             display: flex;
-            align-items: center;
-            gap: 1rem;
-            animation-timing-function: linear;
-            animation-iteration-count: 1;
-            z-index: 12;
-            will-change: transform; /* Performance improvement */
-        }
-        .floating-unit.left-to-right {
-            left: -350px; /* Start off-screen left */
-            animation-name: float-across-ltr;
-        }
-        .floating-unit.right-to-left {
-            right: -350px; /* Start off-screen right */
-            flex-direction: row-reverse; /* Flip order for right-to-left */
-            animation-name: float-across-rtl;
+            flex-direction: column;
+            color: var(--text-light);
+            position: relative;
         }
 
-        @keyframes float-across-ltr {
-            to { transform: translateX(calc(100vw + 400px)); }
+        h1, h2 {
+            font-weight: 700;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
         }
-        @keyframes float-across-rtl {
-            to { transform: translateX(calc(-100vw - 400px)); }
+
+        /* SECTION: WaterFX & Background */
+        #pond {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 100%, var(--water-light) 0%, var(--water-dark) 60%);
+            z-index: 0;
+            perspective: 600px;
+            filter: url(#water-ripple);
+        }
+
+        .pond-decorations {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0; left: 0;
+            pointer-events: none;
         }
         
-        .floating-krathong-image {
-            position: relative;
-            width: 120px;
-            height: auto;
-            animation: bob 4s ease-in-out infinite;
-        }
-
-        @keyframes bob {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
-        /* NEW: Speech bubble for text */
-        .krathong-bubble {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            padding: 12px 16px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            width: max-content;
-            max-width: 250px;
-            position: relative;
-        }
-        .krathong-bubble p { margin: 0; }
-        .krathong-bubble .wish-text {
-            font-size: 1rem;
-            word-wrap: break-word;
-        }
-        .krathong-bubble .name-text {
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: #555;
-            text-align: right;
-            margin-top: 8px;
-        }
-        .krathong-bubble .name-text::before {
-            content: 'จาก: ';
-        }
-
-
-        .firework {
+        .pond-decorations::before { /* Moon */
+            content: '';
             position: absolute;
-            width: 6px;
-            height: 6px;
-            background: #FFD700;
+            top: 10%;
+            left: 15%;
+            width: 80px;
+            height: 80px;
+            background-color: var(--accent-gold);
             border-radius: 50%;
-            box-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700;
-            opacity: 0;
-            animation: burst 1.5s ease-out infinite;
+            box-shadow: 0 0 20px 10px rgba(255, 223, 133, 0.3), inset -10px 10px 10px rgba(0,0,0,0.2);
+            opacity: 0.9;
         }
 
-        @keyframes burst {
-            0% { transform: scale(0); opacity: 1; }
-            80% { opacity: 1; }
-            100% { transform: scale(30); opacity: 0; }
+        .pond-decorations::after { /* Lantern */
+            content: '';
+            position: absolute;
+            top: 5%;
+            right: 10%;
+            width: 60px;
+            height: 90px;
+            background: radial-gradient(circle at 50% 50%, var(--accent-gold), rgba(255, 196, 0, 0.7));
+            border-radius: 45% 45% 30% 30%;
+            box-shadow: 0 0 15px 5px rgba(255, 196, 0, 0.4);
+            animation: lantern-sway 8s ease-in-out infinite;
         }
         
-        /* NEW: Floating lantern (Khom Loi) animation */
-        .khom-loi {
+        @keyframes lantern-sway {
+            0%, 100% { transform: rotate(-5deg) translateY(-5px); }
+            50% { transform: rotate(5deg) translateY(0); }
+        }
+
+        /* SECTION: UI Panel */
+        #ui-panel {
+            position: relative;
+            z-index: 10;
+            background: var(--ui-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            padding: 1.5rem;
+            margin: 1rem auto;
+            max-width: 95%;
+            width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: calc(100vh - 2rem);
+            overflow-y: auto;
+        }
+
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-section h2 {
+            border-bottom: 1px solid var(--accent-gold);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+        }
+
+        .options-grid label {
+            cursor: pointer;
+            text-align: center;
+            border: 2px solid transparent;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            transition: all 0.2s ease-in-out;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .options-grid img {
+            width: 100%;
+            height: auto;
+            border-radius: 0.25rem;
+            object-fit: cover;
+            aspect-ratio: 150/80;
+        }
+
+        .options-grid span {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .options-grid input[type="radio"] {
+            display: none;
+        }
+
+        .options-grid input[type="radio"]:checked + label {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 10px var(--accent-gold);
+            transform: scale(1.05);
+        }
+        
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.2);
+            color: var(--text-light);
+            font-family: var(--font-main);
+            font-size: 1rem;
+            resize: none;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 5px var(--accent-gold);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            font-size: 1.1rem;
+            font-family: var(--font-main);
+            font-weight: 700;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            color: var(--text-dark);
+            background: var(--accent-gold);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 223, 133, 0.4);
+        }
+        
+        button:disabled {
+            background-color: #7a7a7a;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #reset-button {
+            background: #c74242;
+            color: var(--text-light);
+        }
+        
+        #reset-button:hover {
+             box-shadow: 0 4px 15px rgba(199, 66, 66, 0.4);
+        }
+
+        /* SECTION: Preview Area & Krathong Styling */
+        #preview-container {
+            position: relative;
+            width: 200px;
+            height: 120px;
+            margin: 0 auto;
+            transform-style: preserve-3d;
+            transform: rotateX(50deg) rotateZ(-10deg) scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        #preview-container:hover {
+            transform: rotateX(45deg) rotateZ(0) scale(1);
+        }
+        
+        .krathong {
             position: absolute;
-            bottom: -100px; /* Start from bottom */
-            animation: float-up linear forwards;
+            width: 200px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-style: preserve-3d;
             will-change: transform, opacity;
         }
-        @keyframes float-up {
-            0% {
-                transform: translateY(0);
-                opacity: 0.8;
-            }
-            100% {
-                transform: translateY(-100vh);
-                opacity: 0;
-            }
+
+        .krathong-base {
+            width: 100%;
+            height: auto;
+            position: absolute;
+            bottom: 20px;
+            filter: drop-shadow(0 10px 5px rgba(0,0,0,0.4));
         }
+
+        .candle {
+            position: absolute;
+            width: 20px;
+            height: 35px;
+            background: linear-gradient(#fff, #eee);
+            border-radius: 2px 2px 0 0;
+            bottom: 60px;
+            transform: translateY(-50%);
+        }
+
+        .candle::before { /* Wick */
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 4px;
+            background: #333;
+        }
+
+        .candle::after { /* Flame */
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 18px;
+            background: var(--accent-gold);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            box-shadow: 0 0 10px 5px rgba(255, 196, 0, 0.7);
+            animation: flicker 1.5s ease-in-out infinite;
+        }
+        
+        .krathong-glow {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            bottom: 40px;
+            background: radial-gradient(circle, rgba(255, 196, 0, 0.5) 0%, rgba(255, 196, 0, 0) 70%);
+            border-radius: 50%;
+            animation: glow-pulse 2s ease-in-out infinite;
+            transform: translateY(-50%);
+        }
+
+        .krathong-text-container {
+            position: absolute;
+            bottom: 60px;
+            width: 120px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-dark);
+            border-radius: 4px;
+            text-align: center;
+            font-size: 10px;
+            line-height: 1.3;
+            transform: translateZ(10px);
+            pointer-events: none;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .krathong-wish {
+            font-weight: bold;
+        }
+        
+        .krathong-name {
+            font-size: 9px;
+            margin-top: 2px;
+            opacity: 0.8;
+        }
+
+        /* SECTION: Animator (Floating Keyframes) */
+        @keyframes flicker {
+            0%, 100% { transform: translateX(-50%) scale(1, 1); opacity: 1; }
+            50% { transform: translateX(-45%) scale(0.95, 1.05); opacity: 0.9; }
+        }
+        
+        @keyframes glow-pulse {
+            0%, 100% { transform: translateY(-50%) scale(1); opacity: 0.7; }
+            50% { transform: translateY(-50%) scale(1.1); opacity: 1; }
+        }
+
+        .floating-krathong {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform-origin: bottom center;
+            animation-fill-mode: forwards;
+            animation-timing-function: ease-in;
+        }
+        
+        @keyframes float-center {
+            0% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateX(-50%) translateY(-100vh) scale(0.1); opacity: 0.5; }
+        }
+        
+        @keyframes float-left {
+            0% { transform: translateX(-50%) translateY(0) rotateZ(0) scale(1); opacity: 1; }
+            100% { transform: translateX(-200%) translateY(-90vh) rotateZ(-25deg) scale(0.1); opacity: 0.5; }
+        }
+
+        @keyframes float-right {
+            0% { transform: translateX(-50%) translateY(0) rotateZ(0) scale(1); opacity: 1; }
+            100% { transform: translateX(100%) translateY(-90vh) rotateZ(25deg) scale(0.1); opacity: 0.5; }
+        }
+        
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+        
+        /* Responsive */
+        @media (max-height: 700px), (max-width: 500px) {
+             #ui-panel {
+                margin: 0.5rem auto;
+                padding: 1rem;
+                max-height: calc(100vh - 1rem);
+             }
+            .form-section h2 { font-size: 1.1rem; }
+            button { font-size: 1rem; padding: 0.6rem; }
+            #preview-container { display: none; }
+        }
+
     </style>
 </head>
-<body class="text-white">
+<body>
 
-    <div id="river-container" class="fixed inset-0 w-full h-full">
-         <!-- NEW: Scenery container -->
-        <div id="scenery-container" class="absolute inset-0 z-5 pointer-events-none">
-            <!-- MODIFICATION: Increased opacity for better visibility -->
-            <img src="https://raw.githubusercontent.com/nujsarin/loi-kratong/main/watarun.svg" class="absolute bottom-[28%] left-1/2 -translate-x-1/2 w-full max-w-4xl opacity-60">
-            <img src="https://raw.githubusercontent.com/nujsarin/loi-kratong/main/moon.png" class="absolute top-[10%] right-[15%] w-32 h-32 opacity-80">
+    <div id="pond">
+        <div class="pond-decorations"></div>
+    </div>
+
+    <main id="ui-panel" role="form" aria-labelledby="form-title">
+        <h1 id="form-title" style="text-align: center;">สร้างกระทงของคุณ</h1>
+
+        <!-- SECTION: Preview -->
+        <div id="preview-container">
+            <!-- Krathong preview will be rendered here by JS -->
         </div>
-        <div id="river">
-            <div class="wave one"></div>
-            <div class="wave two"></div>
+
+        <!-- SECTION: UI Controls -->
+        <div class="form-section">
+            <h2 id="base-label">1. เลือกฐานกระทง</h2>
+            <div class="options-grid" role="radiogroup" aria-labelledby="base-label">
+                <!-- Base options will be rendered here by JS -->
+            </div>
         </div>
-        <div id="fireworks-container" class="absolute inset-0 z-0"></div>
-    </div>
-    
-    <div id="main-content" class="relative min-h-screen flex flex-col items-center justify-between p-4 z-20">
-        <header class="text-center py-4 md:py-8">
-            <h1 class="text-3xl md:text-5xl font-bold text-yellow-300 drop-shadow-lg">ลอยกระทงออนไลน์ ๒๕๖๘</h1>
-            <p class="text-lg md:text-xl text-cyan-200 mt-2">ร่วมอธิษฐาน ขอขมาพระแม่คงคา และสืบสานประเพณีไทย</p>
-        </header>
 
-        <main class="w-full max-w-5xl bg-black bg-opacity-40 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-2xl border border-white/20">
-            <div>
-                <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๑. เลือกกระทงของคุณ</h2>
-                <div id="krathong-selection" class="grid grid-cols-3 md:grid-cols-5 gap-4">
-                </div>
-            </div>
-            <div class="mt-8 grid md:grid-cols-2 gap-8">
-                <div>
-                     <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๒. ใส่ชื่อและคำอธิษฐาน</h2>
-                    <div class="space-y-4">
-                        <input type="text" id="user-name" placeholder="ใส่ชื่อของคุณ" class="w-full bg-gray-900/50 border border-white/30 rounded-lg px-4 py-2 placeholder-gray-400 focus:ring-2 focus:ring-yellow-400 focus:outline-none transition">
-                        <textarea id="user-wish" rows="4" placeholder="ใส่คำอธิษฐาน..." class="w-full bg-gray-900/50 border border-white/30 rounded-lg px-4 py-2 placeholder-gray-400 focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"></textarea>
-                    </div>
-                </div>
-                 <div>
-                    <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๓. ตกแต่งกระทง</h2>
-                    <div class="flex items-center justify-center bg-gray-900/50 border border-white/30 rounded-lg p-4 h-full">
-                       <label for="add-candle" class="flex items-center cursor-pointer text-lg">
-                           <input type="checkbox" id="add-candle" class="h-6 w-6 rounded-md bg-gray-700 border-gray-500 text-yellow-400 focus:ring-yellow-400 mr-3">
-                           เพิ่มเทียนและธูป
-                       </label>
-                    </div>
-                 </div>
-            </div>
-            <div class="mt-8 text-center">
-                 <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๔. ลอยกระทง</h2>
-                <button id="launch-button" class="bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-bold text-xl px-12 py-4 rounded-full shadow-lg transform hover:scale-105 transition duration-300 ease-in-out">
-                    ลอยกระทง
-                </button>
-            </div>
-        </main>
-        
-        <footer class="py-4 text-center text-sm text-white/60">
-            <p>&copy; 2568 - สร้างสรรค์โดย Gemini</p>
-        </footer>
-    </div>
-
-    <div id="floating-view" class="hidden z-30 fixed top-5 left-5">
-        <button id="back-button" class="bg-cyan-500 hover:bg-cyan-400 text-white font-bold px-6 py-2 rounded-full shadow-lg">
-            &larr; กลับไปสร้างกระทง
-        </button>
-    </div>
-    
-    <div id="message-box" class="hidden fixed top-5 right-5 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50">
-        <p>กรุณาเลือกกระทงก่อน</p>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const GITHUB_IMAGE_PATH = 'https://raw.githubusercontent.com/nujsarin/loi-kratong/main/';
-        const krathongImages = ['unnamed (1).png', 'unnamed (2).png', 'unnamed (3).png', 'unnamed (4).png', 'unnamed (5).png'];
-        const candleImageSrc = `${GITHUB_IMAGE_PATH}candle.png`; 
-        const khomLoiImageSrc = `https://raw.githubusercontent.com/nujsarin/loi-kratong/main/khomloi.png`;
-        const NUM_FIREWORKS = 15;
-        const NUM_LANTERNS = 10;
-        
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-loy-krathong';
-
-        async function main() {
-            let selectedKrathongSrc = null;
-            let db;
-
-            const krathongSelectionContainer = document.getElementById('krathong-selection');
-            const launchButton = document.getElementById('launch-button');
-            const riverContainer = document.getElementById('river-container');
-            const messageBox = document.getElementById('message-box');
-            const fireworksContainer = document.getElementById('fireworks-container');
-            const mainContent = document.getElementById('main-content');
-            const floatingView = document.getElementById('floating-view');
-            const backButton = document.getElementById('back-button');
-            const sceneryContainer = document.getElementById('scenery-container');
-
-            try {
-                if (!firebaseConfig.apiKey) throw new Error("Firebase config is not available.");
-                const app = initializeApp(firebaseConfig);
-                const auth = getAuth(app);
-                db = getFirestore(app);
-                
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                console.log("Firebase initialized and user signed in.");
-                listenForKrathongs();
-            } catch (error) {
-                console.error("Firebase initialization failed:", error);
-                showMessage("ไม่สามารถเชื่อมต่อเซิฟเวอร์ได้", true);
-            }
-
-            // --- UI INITIALIZATION ---
-            krathongImages.forEach((imgName, index) => {
-                const fullSrc = `${GITHUB_IMAGE_PATH}${imgName}`;
-                const div = document.createElement('div');
-                // MODIFICATION: Added a background to the selection box for better presentation
-                div.className = 'cursor-pointer p-2 bg-black/20 rounded-lg transition duration-300 flex items-center justify-center h-32';
-                div.innerHTML = `<img src="${fullSrc}" alt="กระทงแบบที่ ${index + 1}" class="max-w-full max-h-full" onerror="this.style.display='none'">`;
-                div.addEventListener('click', () => {
-                    document.querySelectorAll('#krathong-selection div').forEach(el => el.classList.remove('selected-krathong'));
-                    div.classList.add('selected-krathong');
-                    selectedKrathongSrc = fullSrc;
-                });
-                krathongSelectionContainer.appendChild(div);
-            });
+        <div class="form-section">
+            <h2>2. ใส่คำอธิษฐานและชื่อ</h2>
+            <label for="wish-input" class="sr-only">คำอธิษฐาน (ไม่เกิน 2 บรรทัด)</label>
+            <textarea id="wish-input" rows="2" placeholder="ใส่คำอธิษฐานของคุณที่นี่..."></textarea>
             
-            for (let i = 0; i < NUM_FIREWORKS; i++) {
-                const firework = document.createElement('div');
-                firework.className = 'firework';
-                firework.style.top = `${Math.random() * 50}%`;
-                firework.style.left = `${Math.random() * 100}%`;
-                firework.style.animationDelay = `${Math.random() * 5}s`;
-                fireworksContainer.appendChild(firework);
+            <label for="name-input" class="sr-only">ชื่อผู้ลอยกระทง</label>
+            <input type="text" id="name-input" placeholder="ใส่ชื่อของคุณ">
+        </div>
+
+        <div class="button-group">
+            <button id="launch-button">ลอยกระทง</button>
+            <button id="reset-button">รีเซ็ตสระน้ำ</button>
+        </div>
+    </main>
+
+    <div id="status-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    
+    <!-- SVG Filters for Water -->
+    <svg style="display:none">
+        <filter id="water-ripple">
+            <feTurbulence type="fractalNoise" baseFrequency="0.01 0.03" numOctaves="3" seed="2" stitchTiles="stitch"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+    </svg>
+
+    <script>
+    (function() {
+        'use strict';
+
+        // SECTION: State Management
+        const state = {
+            selectedBase: 'base1',
+            wishText: '',
+            nameText: '',
+            krathongQueue: [],
+            isQueueRunning: false,
+        };
+
+        const config = {
+            bases: [
+                { id: 'base1', name: 'ฐานกาบกล้วย', url: 'https://placehold.co/200x100/8B4513/FFFFFF?text=กาบกล้วย' },
+                { id: 'base2', name: 'ฐานใบตอง', url: 'https://placehold.co/200x100/228B22/FFFFFF?text=ใบตอง' },
+                { id: 'base3', name: 'ฐานขนมปัง', url: 'https://placehold.co/200x100/D2B48C/000000?text=ขนมปัง' },
+                { id: 'base4', name: 'ฐานน้ำแข็ง', url: 'https://placehold.co/200x100/E6E6FA/000000?text=น้ำแข็ง' },
+            ]
+        };
+
+        // SECTION: DOM Element Selectors
+        const dom = {
+            pond: document.getElementById('pond'),
+            previewContainer: document.getElementById('preview-container'),
+            baseOptionsContainer: document.querySelector('.options-grid'),
+            wishInput: document.getElementById('wish-input'),
+            nameInput: document.getElementById('name-input'),
+            launchButton: document.getElementById('launch-button'),
+            resetButton: document.getElementById('reset-button'),
+            statusAnnouncer: document.getElementById('status-announcer'),
+        };
+
+        // SECTION: Utility Functions
+        const util = {
+            getRandomInt: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+            sanitizeHTML: (str) => {
+                const temp = document.createElement('div');
+                temp.textContent = str;
+                return temp.innerHTML;
+            },
+            limitTextLines: (text, maxLines) => {
+                return text.split('\n').slice(0, maxLines).join('\n');
             }
+        };
 
-            for (let i = 0; i < NUM_LANTERNS; i++) {
-                const lantern = document.createElement('img');
-                lantern.src = khomLoiImageSrc;
-                lantern.className = 'khom-loi';
-                const size = Math.random() * 50 + 40; // 40px to 90px
-                lantern.style.width = `${size}px`;
-                lantern.style.left = `${Math.random() * 100}%`;
-                const duration = Math.random() * 20 + 30; // 30-50 seconds
-                lantern.style.animationDuration = `${duration}s`;
-                lantern.style.animationDelay = `${Math.random() * duration}s`;
-                sceneryContainer.appendChild(lantern);
+        // SECTION: Preview Renderer
+        const preview = {
+            renderKrathong: (container, base, wish, name) => {
+                const cleanWish = util.sanitizeHTML(wish);
+                const cleanName = util.sanitizeHTML(name);
+
+                container.innerHTML = `
+                    <div class="krathong">
+                        <div class="krathong-glow"></div>
+                        <div class="candle"></div>
+                        <img src="${base}" class="krathong-base" alt="ฐานกระทง">
+                        ${(cleanWish || cleanName) ? `
+                        <div class="krathong-text-container">
+                            ${cleanWish ? `<div class="krathong-wish">${cleanWish.replace(/\n/g, '<br>')}</div>` : ''}
+                            ${cleanName ? `<div class="krathong-name">- ${cleanName} -</div>` : ''}
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            },
+            update: () => {
+                const selectedBaseUrl = config.bases.find(b => b.id === state.selectedBase)?.url || config.bases[0].url;
+                preview.renderKrathong(dom.previewContainer, selectedBaseUrl, state.wishText, state.nameText);
+                preview.validateInputs();
+            },
+            validateInputs: () => {
+                const hasText = state.wishText.trim() !== '' || state.nameText.trim() !== '';
+                dom.launchButton.disabled = !hasText;
             }
+        };
 
-            launchButton.addEventListener('click', handleLaunch);
-            backButton.addEventListener('click', () => {
-                mainContent.classList.remove('hidden');
-                floatingView.classList.add('hidden');
-            });
+        // SECTION: Animator
+        const animator = {
+            launch: (krathongData) => {
+                const krathongEl = document.createElement('div');
+                krathongEl.className = 'floating-krathong';
+                
+                // Create internal structure
+                const selectedBaseUrl = config.bases.find(b => b.id === krathongData.base)?.url;
+                preview.renderKrathong(krathongEl, selectedBaseUrl, krathongData.wish, krathongData.name);
+                
+                // Randomize animation
+                const animations = ['float-center', 'float-left', 'float-right'];
+                const randomAnimation = animations[util.getRandomInt(0, 2)];
+                const randomDuration = util.getRandomInt(20, 25);
+                const randomStartOffset = util.getRandomInt(-5, 5);
+                
+                krathongEl.style.animationName = randomAnimation;
+                krathongEl.style.animationDuration = `${randomDuration}s`;
+                krathongEl.style.left = `calc(50% + ${randomStartOffset}vw)`;
+                
+                dom.pond.appendChild(krathongEl);
+                
+                dom.statusAnnouncer.textContent = `กระทงของ ${util.sanitizeHTML(krathongData.name) || 'ท่าน'} เริ่มลอยแล้ว`;
 
-            async function handleLaunch() {
-                if (!selectedKrathongSrc) {
-                    showMessage('กรุณาเลือกกระทงของคุณก่อนลอย');
+                krathongEl.addEventListener('animationend', () => {
+                    krathongEl.remove();
+                }, { once: true });
+            }
+        };
+        
+        // SECTION: Queue Manager
+        const queueManager = {
+            process: () => {
+                if (state.krathongQueue.length === 0) {
+                    state.isQueueRunning = false;
                     return;
                 }
-                const name = document.getElementById('user-name').value;
-                const wish = document.getElementById('user-wish').value;
-                const addCandle = document.getElementById('add-candle').checked;
-                const krathongData = { krathongSrc: selectedKrathongSrc, name, wish, hasCandle, createdAt: serverTimestamp() };
-                try {
-                    await addDoc(collection(db, `/artifacts/${appId}/public/data/krathongs`), krathongData);
-                    mainContent.classList.add('hidden');
-                    floatingView.classList.remove('hidden');
-                } catch (e) {
-                    console.error("Error adding document: ", e);
-                    showMessage("เกิดข้อผิดพลาดในการลอยกระทง", true);
+                
+                state.isQueueRunning = true;
+                const krathongToLaunch = state.krathongQueue.shift();
+                animator.launch(krathongToLaunch);
+                
+                const nextLaunchDelay = util.getRandomInt(1000, 3000);
+                setTimeout(queueManager.process, nextLaunchDelay);
+            },
+            start: () => {
+                if (!state.isQueueRunning) {
+                    queueManager.process();
                 }
             }
+        };
 
-            function listenForKrathongs() {
-                const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
-                const collectionPath = `/artifacts/${appId}/public/data/krathongs`;
-                const q = query(collection(db, collectionPath), where("createdAt", ">", tenMinutesAgo));
-                onSnapshot(q, (snapshot) => {
-                    snapshot.docChanges().forEach((change) => {
-                        if (change.type === "added") createAndFloatKrathong(change.doc.data());
-                    });
-                }, (error) => console.error("Error listening to krathongs:", error));
+        // SECTION: Event Handlers
+        const handlers = {
+            handleBaseSelection: (event) => {
+                if (event.target.name === 'krathong-base') {
+                    state.selectedBase = event.target.value;
+                    preview.update();
+                }
+            },
+            handleWishInput: (event) => {
+                const limitedText = util.limitTextLines(event.target.value, 2);
+                state.wishText = limitedText;
+                if (event.target.value !== limitedText) {
+                    event.target.value = limitedText;
+                }
+                preview.update();
+            },
+            handleNameInput: (event) => {
+                state.nameText = event.target.value;
+                preview.update();
+            },
+            handleLaunchClick: () => {
+                const krathongData = {
+                    base: state.selectedBase,
+                    wish: state.wishText,
+                    name: state.nameText
+                };
+                state.krathongQueue.push(krathongData);
+                
+                // Announce
+                const name = util.sanitizeHTML(state.nameText) || 'คุณ';
+                dom.statusAnnouncer.textContent = `เพิ่มกระทงของ ${name} ลงในคิว`;
+                
+                // Clear inputs for next one
+                state.wishText = '';
+                state.nameText = '';
+                dom.wishInput.value = '';
+                dom.nameInput.value = '';
+                preview.update();
+                dom.wishInput.focus();
+
+                queueManager.start();
+            },
+            handleResetClick: () => {
+                // Clear queue
+                state.krathongQueue = [];
+                // Clear floating krathongs from DOM
+                const floatingKrathongs = dom.pond.querySelectorAll('.floating-krathong');
+                floatingKrathongs.forEach(k => k.remove());
+                dom.statusAnnouncer.textContent = 'รีเซ็ตสระน้ำเรียบร้อยแล้ว';
             }
+        };
+
+        // SECTION: Initialization
+        function init() {
+            // Render base options
+            let baseHtml = '';
+            config.bases.forEach((base, index) => {
+                baseHtml += `
+                    <div>
+                        <input type="radio" id="${base.id}" name="krathong-base" value="${base.id}" ${index === 0 ? 'checked' : ''}>
+                        <label for="${base.id}">
+                            <img src="${base.url}" alt="${base.name}">
+                            <span>${base.name}</span>
+                        </label>
+                    </div>
+                `;
+            });
+            dom.baseOptionsContainer.innerHTML = baseHtml;
+
+            // Attach event listeners
+            dom.baseOptionsContainer.addEventListener('change', handlers.handleBaseSelection);
+            dom.wishInput.addEventListener('input', handlers.handleWishInput);
+            dom.nameInput.addEventListener('input', handlers.handleNameInput);
+            dom.launchButton.addEventListener('click', handlers.handleLaunchClick);
+            dom.resetButton.addEventListener('click', handlers.handleResetClick);
             
-            function createAndFloatKrathong(data) {
-                const { krathongSrc, name, wish, hasCandle } = data;
-                
-                const unit = document.createElement('div');
-                unit.className = 'floating-unit';
-                
-                const direction = Math.random() > 0.5 ? 'left-to-right' : 'right-to-left';
-                const duration = Math.random() * 15 + 25; // 25-40 seconds
-                const startY = Math.random() * 40 + 5; // 5% to 45% from the bottom
-                unit.style.bottom = `${startY}%`;
-                unit.style.animationDuration = `${duration}s`;
-                unit.classList.add(direction);
-
-                const krathongContainer = document.createElement('div');
-                krathongContainer.className = 'floating-krathong-image';
-                const krathongImg = document.createElement('img');
-                krathongImg.src = krathongSrc;
-                krathongContainer.appendChild(krathongImg);
-                
-                if(hasCandle) {
-                    const candleImg = document.createElement('img');
-                    candleImg.src = candleImageSrc;
-                    candleImg.className = 'absolute w-1/2 top-[-30%] left-1/2 -translate-x-1/2';
-                    candleImg.onerror = () => { candleImg.style.display = 'none'; };
-                    krathongContainer.appendChild(candleImg);
-                }
-
-                const bubble = document.createElement('div');
-                if (name || wish) {
-                    bubble.className = 'krathong-bubble';
-                    if (wish) {
-                        const wishEl = document.createElement('p');
-                        wishEl.className = 'wish-text';
-                        wishEl.textContent = wish;
-                        bubble.appendChild(wishEl);
-                    }
-                    if (name) {
-                        const nameEl = document.createElement('p');
-                        nameEl.className = 'name-text';
-                        nameEl.textContent = name;
-                        bubble.appendChild(nameEl);
-                    }
-                    unit.appendChild(bubble);
-                }
-                
-                unit.appendChild(krathongContainer);
-                riverContainer.appendChild(unit);
-                setTimeout(() => unit.remove(), duration * 1000);
-            }
-
-            function showMessage(text, isError = false) {
-                messageBox.textContent = text;
-                messageBox.classList.remove('hidden', 'bg-red-600', 'bg-green-600');
-                messageBox.classList.add(isError ? 'bg-red-600' : 'bg-green-600');
-                setTimeout(() => messageBox.classList.add('hidden'), 3000);
-            }
+            // Initial render
+            preview.update();
         }
-        main();
+
+        // Run on load
+        document.addEventListener('DOMContentLoaded', init);
+
+    })();
     </script>
 </body>
 </html>
-
