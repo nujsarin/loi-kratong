@@ -3,1075 +3,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ลอยกระทง - Loi Krathong Festival</title>
-    <!-- 
-    คำแนะนำสำหรับ GitHub Pages:
-    
-    1. สร้าง repository ใหม่บน GitHub
-    2. อัพโหลดไฟล์เหล่านี้:
-       - index.html (ไฟล์นี้)
-       - background.jpg (ภาพพื้นหลังวัดอรุณ)
-       
-    3. โครงสร้างไฟล์:
-       your-repo/
-       ├── index.html
-       └── background.jpg
-       
-    4. เปิดใช้งาน GitHub Pages:
-       - ไปที่ Settings > Pages
-       - เลือก Branch: main
-       - กด Save
-       
-    5. เว็บจะแสดงที่: https://your-username.github.io/your-repo/
-    
-    หมายเหตุ: ถ้าอยากใช้รูปจาก URL ภายนอก เปลี่ยน 'background.jpg' 
-    เป็น URL เต็ม เช่น 'https://example.com/image.jpg'
-    -->
+    <title>ลอยกระทงออนไลน์ 2568</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Thai characters -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Sarabun', 'Segoe UI', Tahoma, sans-serif;
-            /* รองรับทั้ง .jpg และ .png */
-            background: 
-                linear-gradient(to bottom, rgba(10, 14, 39, 0.3) 0%, rgba(26, 31, 58, 0.5) 50%, rgba(42, 24, 16, 0.7) 100%),
-                url('background.png') center center / cover no-repeat fixed;
-            
-            /* ถ้าไม่มีภาพ จะใช้ gradient เป็น fallback */
-            background-color: #1a1f3a;
-            
-            min-height: 100vh;
+            font-family: 'Sarabun', sans-serif;
+            background-color: #03193A;
             overflow-x: hidden;
-            position: relative;
         }
 
-        /* พื้นหลังดาว - Stars Background */
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 60%;
-            background: transparent;
-            z-index: 0;
+        /* Styling for selected items */
+        .selected-krathong {
+            transform: scale(1.05);
+            border: 4px solid #FBBF24; /* amber-400 */
+            box-shadow: 0 0 20px #FBBF24;
         }
-
-        .star {
+        
+        /* The river where krathongs float */
+        #river {
             position: absolute;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
-        }
-
-        /* พื้นน้ำ - Water Surface */
-        .water {
-            position: fixed;
             bottom: 0;
             left: 0;
-            width: 100%;
-            height: 40%;
-            background: linear-gradient(to bottom, #0d1b2a 0%, #1b263b 50%, #0a0f1a 100%);
+            right: 0;
+            height: 70%;
+            background: linear-gradient(to top, #1e3a8a, #03193a 80%);
+            overflow: hidden;
             z-index: 1;
         }
 
-        /* SVG Filter for Water Ripples */
-        #water-filter {
+        /* Wave animations */
+        .wave {
+            background: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23333' stroke-width='0'/%3e%3c/svg%3e");
             position: absolute;
-            width: 0;
-            height: 0;
-        }
-
-        /* หน้าจอหลัก - Main Container */
-        .container {
-            position: relative;
-            z-index: 10;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            padding-bottom: 50vh; /* เพิ่มพื้นที่ด้านล่างเพื่อให้เห็นกระทง */
-        }
-
-        h1 {
-            text-align: center;
-            color: #ffd700;
-            font-size: 2.5em;
-            margin: 20px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        /* ฟอร์มสร้างกระทง - Krathong Creation Form */
-        .form-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-        }
-
-        .form-section {
-            margin-bottom: 25px;
-        }
-
-        .form-section h3 {
-            color: #8b4513;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        /* วัสดุฐาน - Base Materials */
-        .material-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
-
-        .material-btn {
-            padding: 15px;
-            border: 3px solid #8b4513;
-            background: #fff;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1em;
-        }
-
-        .material-btn:hover {
-            background: #fff8dc;
-            transform: scale(1.05);
-        }
-
-        .material-btn.selected {
-            background: #8b4513;
-            color: white;
-            border-color: #654321;
-        }
-
-        /* ดอกไม้ - Flowers */
-        .flower-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 12px;
-        }
-
-        .flower-btn {
-            padding: 12px;
-            border: 2px solid #ff69b4;
-            background: #fff;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.95em;
-            position: relative;
-        }
-
-        .flower-btn:hover {
-            background: #ffe4f0;
-            transform: scale(1.05);
-        }
-
-        .flower-btn.selected {
-            background: #ff69b4;
-            color: white;
-            border-color: #ff1493;
-        }
-
-        .flower-count {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ff1493;
-            color: white;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-
-        /* เทียน - Candles */
-        .candle-selector {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .candle-selector input {
-            width: 80px;
-            padding: 10px;
-            font-size: 1.2em;
-            border: 2px solid #ffa500;
-            border-radius: 8px;
-        }
-
-        /* คำอธิษฐาน - Wish Text */
-        .wish-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #4169e1;
-            border-radius: 8px;
-            font-size: 1.1em;
-            resize: vertical;
-            min-height: 80px;
-            font-family: inherit;
-        }
-
-        /* ชื่อผู้สร้าง - Maker Name */
-        .name-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #32cd32;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-family: inherit;
-        }
-
-        /* ปุ่ม - Buttons */
-        .button-group {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        button {
-            padding: 15px 40px;
-            font-size: 1.2em;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-        }
-
-        .float-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .float-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .reset-btn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-        }
-
-        .reset-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
-        }
-
-        /* แม่น้ำกระทง - River Container */
-        .river-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60vh; /* เพิ่มความสูงให้เห็นกระทงชัดเจน */
-            perspective: 1500px;
-            z-index: 5;
-            pointer-events: none;
-        }
-
-        /* กระทง 3D - 3D Krathong */
-        .krathong {
-            position: absolute;
-            bottom: 15%; /* เริ่มต้นที่ตำแหน่งสูงขึ้น */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 180px; /* ขยายขนาดกระทง */
-            height: 180px;
-            transform-style: preserve-3d;
-            pointer-events: none;
-        }
-
-        /* ฐานกระทง - Krathong Base */
-        .krathong-base {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform: rotateX(60deg);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
-        }
-
-        /* กลีบบัว - Lotus Petals Base Design */
-        .krathong-base::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            border-radius: 50%;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
-        }
-
-        /* วัสดุฐานแบบต่างๆ - Different Base Materials */
-        .base-bread { 
-            background: radial-gradient(circle at 30% 30%, #f5deb3 0%, #daa520 40%, #8b6914 100%);
-            border-radius: 50%;
-            position: relative;
-        }
-
-        .base-bread::after {
-            content: '';
-            position: absolute;
-            width: 90%;
-            height: 90%;
-            top: 5%;
-            left: 5%;
-            background: repeating-radial-gradient(circle, transparent 0%, transparent 10%, rgba(139, 105, 20, 0.1) 10%, rgba(139, 105, 20, 0.1) 20%);
-            border-radius: 50%;
-        }
-
-        .base-banana-trunk { 
-            background: radial-gradient(circle at 35% 35%, #b8e986 0%, #7cb342 50%, #558b2f 100%);
-            border-radius: 50%;
-            border: 3px solid #4a7a2f;
-        }
-
-        .base-banana-leaf { 
-            background: radial-gradient(ellipse at center, #9ccc65 0%, #7cb342 50%, #558b2f 100%);
-            clip-path: polygon(50% 0%, 80% 10%, 100% 35%, 90% 50%, 100% 65%, 80% 90%, 50% 100%, 20% 90%, 0% 65%, 10% 50%, 0% 35%, 20% 10%);
-        }
-
-        .base-lotus-leaf { 
-            background: radial-gradient(circle at 40% 40%, #a5d6a7 0%, #66bb6a 40%, #388e3c 80%, #2e7d32 100%);
-            border-radius: 50%;
-            border: 2px solid #2e7d32;
-            position: relative;
-        }
-
-        /* เส้นกลีบบัว - Lotus Petal Lines */
-        .base-lotus-leaf::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: 
-                linear-gradient(0deg, transparent 48%, rgba(46, 125, 50, 0.3) 50%, transparent 52%),
-                linear-gradient(45deg, transparent 48%, rgba(46, 125, 50, 0.3) 50%, transparent 52%),
-                linear-gradient(90deg, transparent 48%, rgba(46, 125, 50, 0.3) 50%, transparent 52%),
-                linear-gradient(135deg, transparent 48%, rgba(46, 125, 50, 0.3) 50%, transparent 52%);
-            border-radius: 50%;
-        }
-
-        .base-natural { 
-            background: 
-                radial-gradient(circle at 50% 50%, rgba(222, 184, 135, 0.8) 0%, transparent 50%),
-                radial-gradient(circle at 30% 30%, #d2b48c 0%, #bc9a6b 50%, #8b7355 100%);
-            border-radius: 50%;
-            border: 2px solid #6b5638;
-        }
-
-        /* ดอกไม้บนกระทง - Flowers on Krathong */
-        .krathong-flowers {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-            width: 85%;
-        }
-
-        .flower {
-            width: 28px; /* ขยายดอกไม้ */
-            height: 28px;
-            position: relative;
-            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
-        }
-
-        /* ดาวเรือง - Marigold (สีส้มทอง) */
-        .flower-marigold {
-            background: radial-gradient(circle at 30% 30%, #ffeb3b 0%, #ffa726 40%, #f57c00 100%);
-            border-radius: 50%;
-            position: relative;
-        }
-
-        .flower-marigold::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 50% 50%, #ffeb3b 0%, transparent 30%);
-            border-radius: 50%;
-        }
-
-        .flower-marigold::after {
-            content: '';
-            position: absolute;
-            width: 120%;
-            height: 120%;
-            top: -10%;
-            left: -10%;
-            background: 
-                conic-gradient(from 0deg, transparent 20%, #ff9800 25%, transparent 30%, transparent 45%, #ff9800 50%, transparent 55%, transparent 70%, #ff9800 75%, transparent 80%);
-            border-radius: 50%;
-            z-index: -1;
-        }
-
-        /* กล้วยไม้ - Orchid (สีม่วง) */
-        .flower-orchid {
-            background: radial-gradient(circle at 35% 35%, #f3e5f5 0%, #ce93d8 40%, #ab47bc 80%, #8e24aa 100%);
-            border-radius: 50%;
-            position: relative;
-        }
-
-        .flower-orchid::before {
-            content: '';
-            position: absolute;
-            width: 70%;
-            height: 70%;
-            top: 15%;
-            left: 15%;
-            background: radial-gradient(circle, #fff 0%, #f3e5f5 50%, transparent 100%);
-            border-radius: 50%;
-        }
-
-        /* กุหลาบ - Rose (สีชมพูแดง) */
-        .flower-rose {
-            background: radial-gradient(circle at 30% 30%, #f8bbd0 0%, #f06292 40%, #e91e63 80%, #c2185b 100%);
-            border-radius: 50%;
-            position: relative;
-        }
-
-        .flower-rose::before {
-            content: '';
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            top: 25%;
-            left: 25%;
-            background: radial-gradient(circle, #fce4ec 0%, #f48fb1 100%);
-            border-radius: 50%;
-        }
-
-        .flower-rose::after {
-            content: '';
-            position: absolute;
-            width: 110%;
-            height: 110%;
-            top: -5%;
-            left: -5%;
-            background: 
-                conic-gradient(from 45deg, transparent 15%, rgba(244, 143, 177, 0.6) 20%, transparent 25%, transparent 40%, rgba(244, 143, 177, 0.6) 45%, transparent 50%, transparent 65%, rgba(244, 143, 177, 0.6) 70%, transparent 75%, transparent 90%, rgba(244, 143, 177, 0.6) 95%, transparent 100%);
-            border-radius: 50%;
-            z-index: -1;
-        }
-
-        /* บัว - Lotus (สีชมพูอ่อน) */
-        .flower-lotus {
-            background: radial-gradient(circle at 40% 40%, #fff 0%, #f8bbd0 30%, #f48fb1 60%, #ec407a 100%);
-            border-radius: 50%;
-            position: relative;
-        }
-
-        .flower-lotus::before {
-            content: '';
-            position: absolute;
-            width: 60%;
-            height: 60%;
-            top: 20%;
-            left: 20%;
-            background: radial-gradient(circle, #fff9c4 0%, #fff59d 50%, transparent 100%);
-            border-radius: 50%;
-        }
-
-        .flower-lotus::after {
-            content: '';
-            position: absolute;
-            width: 130%;
-            height: 130%;
-            top: -15%;
-            left: -15%;
-            background: 
-                conic-gradient(from 30deg, transparent 10%, rgba(244, 143, 177, 0.5) 12%, transparent 14%, transparent 25%, rgba(244, 143, 177, 0.5) 27%, transparent 29%, transparent 40%, rgba(244, 143, 177, 0.5) 42%, transparent 44%, transparent 55%, rgba(244, 143, 177, 0.5) 57%, transparent 59%, transparent 70%, rgba(244, 143, 177, 0.5) 72%, transparent 74%, transparent 85%, rgba(244, 143, 177, 0.5) 87%, transparent 89%);
-            border-radius: 50%;
-            z-index: -1;
-        }
-
-        /* มะลิ - Jasmine (สีขาว) */
-        .flower-jasmine {
-            background: radial-gradient(circle at 35% 35%, #fff 0%, #fafafa 60%, #f5f5f5 100%);
-            border-radius: 50%;
-            position: relative;
-            border: 1px solid #e0e0e0;
-        }
-
-        .flower-jasmine::before {
-            content: '';
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            top: 25%;
-            left: 25%;
-            background: radial-gradient(circle, #fffde7 0%, #fff9c4 100%);
-            border-radius: 50%;
-        }
-
-        /* เทียน - Candles */
-        .krathong-candles {
-            position: absolute;
-            top: 28%;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 12px;
-            z-index: 10;
-        }
-
-        .candle {
-            width: 12px; /* ขยายเทียน */
-            height: 32px;
-            background: linear-gradient(to bottom, #fffacd 0%, #ffd700 30%, #daa520 70%, #b8860b 100%);
-            border-radius: 3px 3px 0 0;
-            position: relative;
-            box-shadow: 
-                inset 0 2px 4px rgba(255,255,255,0.5),
-                0 3px 8px rgba(0,0,0,0.4);
-            border: 1px solid #b8860b;
-        }
-
-        /* เปลวไฟ - Flame */
-        .flame {
-            position: absolute;
-            top: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 18px; /* ขยายเปลวไฟ */
-            height: 24px;
-            background: 
-                radial-gradient(ellipse at 50% 60%, #ffff00 0%, #ffeb3b 20%, #ffa726 40%, #ff6f00 60%, transparent 80%);
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            animation: flicker 0.15s infinite alternate, flame-move 1s ease-in-out infinite;
-            filter: blur(0.5px);
-            box-shadow: 
-                0 0 20px 4px rgba(255, 183, 77, 0.8),
-                0 0 35px 7px rgba(255, 152, 0, 0.6),
-                0 0 50px 10px rgba(255, 87, 34, 0.4);
-        }
-
-        /* เปลวไฟด้านใน - Inner Flame */
-        .flame::before {
-            content: '';
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60%;
-            height: 60%;
-            background: radial-gradient(ellipse at center, #fff 0%, #ffeb3b 40%, transparent 70%);
-            border-radius: 50%;
-            animation: inner-flicker 0.2s infinite alternate;
-        }
-
-        /* แสงเรืองรอบเทียน - Candle Glow */
-        .flame::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 183, 77, 0.4) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: glow-pulse 2s ease-in-out infinite;
+            height: 100%;
+            background-repeat: repeat-x;
+            background-size: 50% 100px;
+            bottom: 0;
         }
 
-        @keyframes flicker {
-            0% { transform: translateX(-50%) scaleY(1) scaleX(1); }
-            100% { transform: translateX(-50%) scaleY(1.1) scaleX(0.95); }
+        .wave.one {
+            background-image: url('https://s.isanook.com/an/0/loykrathong/static/images/2024/bg/wave-1.webp');
+            animation: wave 25s linear infinite;
+            opacity: 0.8;
+            z-index: 15;
+            height: 150px;
         }
 
-        @keyframes inner-flicker {
-            0% { opacity: 0.8; }
-            100% { opacity: 1; }
+        .wave.two {
+            background-image: url('https://s.isanook.com/an/0/loykrathong/static/images/2024/bg/wave-2.webp');
+            animation: wave 20s linear infinite;
+            opacity: 0.6;
+            z-index: 10;
+            bottom: 10px;
+             height: 150px;
         }
 
-        @keyframes flame-move {
-            0%, 100% { transform: translateX(-50%) rotate(-2deg); }
-            50% { transform: translateX(-50%) rotate(2deg); }
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
 
-        @keyframes glow-pulse {
-            0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.2); }
-        }
-
-        /* คำอธิษฐานบนกระทง - Wish Text on Krathong */
-        .krathong-wish {
-            position: absolute;
-            bottom: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255,255,255,0.95);
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            white-space: nowrap;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-align: center;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            white-space: normal;
-            font-weight: 500;
-        }
-
-        /* ชื่อผู้สร้าง - Maker Name */
-        .krathong-maker {
-            position: absolute;
-            bottom: -65px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #ffd700;
-            font-size: 0.85em;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
-            white-space: nowrap;
-            background: rgba(0,0,0,0.3);
-            padding: 4px 12px;
-            border-radius: 5px;
-        }
-
-        /* ระลอกคลื่น - Water Ripples */
-        .ripple {
-            position: absolute;
-            bottom: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 180px;
-            height: 40px;
-            border-radius: 50%;
-            background: 
-                radial-gradient(ellipse at center, rgba(135, 206, 250, 0.4) 0%, rgba(100, 180, 255, 0.2) 40%, transparent 70%);
-            animation: ripple-animation 2.5s infinite ease-out;
-            filter: blur(2px);
-        }
-
-        /* คลื่นชั้นที่ 2 - Second Ripple Layer */
-        .ripple::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 130%;
-            height: 130%;
-            border-radius: 50%;
-            background: 
-                radial-gradient(ellipse at center, transparent 0%, rgba(100, 180, 255, 0.15) 50%, transparent 80%);
-            animation: ripple-animation 2.5s infinite ease-out 0.3s;
-        }
-
-        /* คลื่นชั้นที่ 3 - Third Ripple Layer */
-        .ripple::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 160%;
-            height: 160%;
-            border-radius: 50%;
-            background: 
-                radial-gradient(ellipse at center, transparent 0%, rgba(100, 180, 255, 0.1) 60%, transparent 90%);
-            animation: ripple-animation 2.5s infinite ease-out 0.6s;
-        }
-
-        @keyframes ripple-animation {
+        /* Floating animation for the krathong */
+        @keyframes float-away {
             0% {
-                transform: translateX(-50%) scale(0.7);
-                opacity: 0;
-            }
-            20% {
-                opacity: 0.6;
-            }
-            70% {
-                transform: translateX(-50%) scale(1.2);
-                opacity: 0.2;
-            }
-            100% {
-                transform: translateX(-50%) scale(1.5);
-                opacity: 0;
-            }
-        }
-
-        /* แอนิเมชั่นลอยกระทง - Float Animations */
-        @keyframes float-forward {
-            0% {
-                bottom: 15%;
-                left: 50%;
-                transform: translateX(-50%) scale(1) rotateX(60deg);
+                bottom: 5%;
                 opacity: 1;
+                transform: translateX(-50%) scale(0.8);
             }
             100% {
-                bottom: 85%;
-                left: 50%;
-                transform: translateX(-50%) scale(0.35) rotateX(70deg);
+                bottom: 80%;
                 opacity: 0;
+                transform: translateX(calc(-50% + var(--float-direction, 0px))) scale(0.1);
             }
         }
 
-        @keyframes float-left {
-            0% {
-                bottom: 15%;
-                left: 50%;
-                transform: translateX(-50%) scale(1) rotateX(60deg) rotateZ(0deg);
-                opacity: 1;
-            }
-            100% {
-                bottom: 75%;
-                left: 15%;
-                transform: translateX(-50%) scale(0.3) rotateX(75deg) rotateZ(-15deg);
-                opacity: 0;
-            }
+        .floating-krathong {
+            position: absolute;
+            left: 50%;
+            animation: float-away 15s linear forwards;
+            z-index: 12;
+            width: 200px; /* Base size */
+            height: auto;
         }
 
-        @keyframes float-right {
-            0% {
-                bottom: 15%;
-                left: 50%;
-                transform: translateX(-50%) scale(1) rotateX(60deg) rotateZ(0deg);
-                opacity: 1;
-            }
-            100% {
-                bottom: 75%;
-                left: 85%;
-                transform: translateX(-50%) scale(0.3) rotateX(75deg) rotateZ(15deg);
-                opacity: 0;
-            }
+        /* Simple firework animation */
+        .firework {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #FFD700;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700;
+            opacity: 0;
+            animation: burst 1.5s ease-out infinite;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8em;
-            }
-
-            .form-container {
-                padding: 20px;
-            }
-
-            .material-options,
-            .flower-options {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            button {
-                width: 100%;
-            }
-        }
-
-        .error-message {
-            color: #d32f2f;
-            font-size: 0.9em;
-            margin-top: 5px;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
+        @keyframes burst {
+            0% { transform: scale(0); opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: scale(30); opacity: 0; }
         }
     </style>
 </head>
-<body>
-    <!-- ดาว - Stars -->
-    <div class="stars" id="stars"></div>
+<body class="text-white">
 
-    <!-- น้ำ - Water -->
-    <div class="water"></div>
-
-    <!-- SVG Filter สำหรับคลื่นน้ำ - SVG Filter for Water Ripples -->
-    <svg id="water-filter">
-        <defs>
-            <filter id="turbulence">
-                <feTurbulence type="turbulence" baseFrequency="0.01 0.01" numOctaves="2" result="turbulence">
-                    <animate attributeName="baseFrequency" dur="20s" values="0.01 0.01;0.02 0.02;0.01 0.01" repeatCount="indefinite"/>
-                </feTurbulence>
-                <feDisplacementMap in2="turbulence" in="SourceGraphic" scale="5" xChannelSelector="R" yChannelSelector="G"/>
-            </filter>
-        </defs>
-    </svg>
-
-    <div class="container">
-        <h1>🪷 ลอยกระทง 🪷</h1>
-        
-        <!-- ฟอร์มสร้างกระทง - Krathong Creation Form -->
-        <div class="form-container">
-            <!-- เลือกวัสดุฐาน - Base Material Selection -->
-            <div class="form-section">
-                <h3>🌿 เลือกวัสดุฐานกระทง</h3>
-                <div class="material-options">
-                    <button class="material-btn" data-material="bread">ขนมปัง</button>
-                    <button class="material-btn" data-material="banana-trunk">ลำต้นกล้วย</button>
-                    <button class="material-btn" data-material="banana-leaf">ใบตอง</button>
-                    <button class="material-btn" data-material="lotus-leaf">ใบบัว</button>
-                    <button class="material-btn" data-material="natural">วัสดุธรรมชาติ</button>
-                </div>
-            </div>
-
-            <!-- เลือกดอกไม้ - Flower Selection -->
-            <div class="form-section">
-                <h3>🌸 เลือกดอกไม้ (สูงสุด 5 ดอก)</h3>
-                <div class="flower-options">
-                    <button class="flower-btn" data-flower="marigold">
-                        ดาวเรือง
-                        <span class="flower-count" style="display:none;">0</span>
-                    </button>
-                    <button class="flower-btn" data-flower="orchid">
-                        กล้วยไม้
-                        <span class="flower-count" style="display:none;">0</span>
-                    </button>
-                    <button class="flower-btn" data-flower="rose">
-                        กุหลาบ
-                        <span class="flower-count" style="display:none;">0</span>
-                    </button>
-                    <button class="flower-btn" data-flower="lotus">
-                        บัว
-                        <span class="flower-count" style="display:none;">0</span>
-                    </button>
-                    <button class="flower-btn" data-flower="jasmine">
-                        มะลิ
-                        <span class="flower-count" style="display:none;">0</span>
-                    </button>
-                </div>
-                <div class="error-message" id="flower-error">เลือกดอกไม้ได้สูงสุด 5 ดอกเท่านั้น</div>
-            </div>
-
-            <!-- จำนวนเทียน - Candle Count -->
-            <div class="form-section">
-                <h3>🕯️ จำนวนเทียน</h3>
-                <div class="candle-selector">
-                    <input type="number" id="candle-count" min="0" max="9" value="3">
-                    <span>ดอก (0-9)</span>
-                </div>
-            </div>
-
-            <!-- คำอธิษฐาน - Wish/Prayer -->
-            <div class="form-section">
-                <h3>🙏 คำอธิษฐาน</h3>
-                <textarea id="wish-text" class="wish-input" placeholder="พิมพ์คำอธิษฐานของคุณ (สูงสุด 2 บรรทัด)" rows="3"></textarea>
-            </div>
-
-            <!-- ชื่อผู้สร้าง - Maker Name -->
-            <div class="form-section">
-                <h3>✍️ ชื่อผู้สร้างกระทง</h3>
-                <input type="text" id="maker-name" class="name-input" placeholder="พิมพ์ชื่อของคุณ">
-            </div>
-
-            <!-- ปุ่ม - Buttons -->
-            <div class="button-group">
-                <button class="float-btn" onclick="floatKrathong()">ลอยกระทง</button>
-                <button class="reset-btn" onclick="resetRiver()">ล้างแม่น้ำ</button>
-            </div>
+    <!-- River and background elements container -->
+    <div id="river-container" class="fixed inset-0 w-full h-full">
+        <div id="river">
+            <div class="wave one"></div>
+            <div class="wave two"></div>
         </div>
+        <div id="fireworks-container" class="absolute inset-0 z-0"></div>
+    </div>
+    
+    <!-- Main content container -->
+    <div class="relative min-h-screen flex flex-col items-center justify-between p-4 z-20">
+
+        <!-- Header -->
+        <header class="text-center py-4 md:py-8">
+            <h1 class="text-3xl md:text-5xl font-bold text-yellow-300 drop-shadow-lg">ลอยกระทงออนไลน์ ๒๕๖๘</h1>
+            <p class="text-lg md:text-xl text-cyan-200 mt-2">ร่วมอธิษฐาน ขอขมาพระแม่คงคา และสืบสานประเพณีไทย</p>
+        </header>
+
+        <!-- Main Interaction Area -->
+        <main class="w-full max-w-5xl bg-black bg-opacity-40 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-2xl border border-white/20">
+
+            <!-- Step 1: Choose Krathong -->
+            <div>
+                <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๑. เลือกกระทงของคุณ</h2>
+                <div id="krathong-selection" class="grid grid-cols-3 md:grid-cols-5 gap-4">
+                    <!-- Krathong options will be dynamically inserted here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Step 2: Customize -->
+            <div class="mt-8 grid md:grid-cols-2 gap-8">
+                <!-- Inputs: Name and Wish -->
+                <div>
+                     <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๒. ใส่ชื่อและคำอธิษฐาน</h2>
+                    <div class="space-y-4">
+                        <input type="text" id="user-name" placeholder="ใส่ชื่อของคุณ" class="w-full bg-gray-900/50 border border-white/30 rounded-lg px-4 py-2 placeholder-gray-400 focus:ring-2 focus:ring-yellow-400 focus:outline-none transition">
+                        <textarea id="user-wish" rows="4" placeholder="ใส่คำอธิษฐาน..." class="w-full bg-gray-900/50 border border-white/30 rounded-lg px-4 py-2 placeholder-gray-400 focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"></textarea>
+                    </div>
+                </div>
+
+                <!-- Decoration -->
+                 <div>
+                    <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๓. ตกแต่งกระทง</h2>
+                    <div class="flex items-center justify-center bg-gray-900/50 border border-white/30 rounded-lg p-4 h-full">
+                       <label for="add-candle" class="flex items-center cursor-pointer text-lg">
+                           <input type="checkbox" id="add-candle" class="h-6 w-6 rounded-md bg-gray-700 border-gray-500 text-yellow-400 focus:ring-yellow-400 mr-3">
+                           เพิ่มเทียนและธูป
+                       </label>
+                    </div>
+                 </div>
+            </div>
+            
+            <!-- Step 3: Launch button -->
+            <div class="mt-8 text-center">
+                 <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๔. ลอยกระทง</h2>
+                <button id="launch-button" class="bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-bold text-xl px-12 py-4 rounded-full shadow-lg transform hover:scale-105 transition duration-300 ease-in-out">
+                    ลอยกระทง
+                </button>
+            </div>
+
+        </main>
+        
+        <!-- Footer -->
+        <footer class="py-4 text-center text-sm text-white/60">
+            <p>&copy; 2568 - สร้างสรรค์โดย Gemini</p>
+        </footer>
+
+    </div>
+    
+    <!-- Message display for errors -->
+    <div id="message-box" class="hidden fixed top-5 right-5 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        <p>กรุณาเลือกกระทงก่อน</p>
     </div>
 
-    <!-- คอนเทนเนอร์แม่น้ำ - River Container -->
-    <div class="river-container" id="river"></div>
 
     <script>
-        // สร้างดาว - Create Stars
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.width = star.style.height = (Math.random() * 3 + 1) + 'px';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                starsContainer.appendChild(star);
-            }
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURATION ---
+            const GITHUB_IMAGE_PATH = 'https://raw.githubusercontent.com/gemini-demos/loy-krathong-assets/main/';
+            const krathongImages = [
+                'krathong_1.png', 'krathong_2.png', 'krathong_3.png', 'krathong_4.png', 'krathong_5.png'
+            ];
+            const candleImageSrc = `${GITHUB_IMAGE_PATH}candle.png`;
+            const NUM_FIREWORKS = 15;
 
-        // ตัวแปรเก็บสถานะ - State Variables
-        let selectedMaterial = null;
-        let selectedFlowers = {};
-        let totalFlowers = 0;
+            // --- STATE ---
+            let selectedKrathongSrc = null;
 
-        // เลือกวัสดุฐาน - Select Base Material
-        document.querySelectorAll('.material-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.material-btn').forEach(b => b.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedMaterial = this.dataset.material;
+            // --- DOM ELEMENTS ---
+            const krathongSelectionContainer = document.getElementById('krathong-selection');
+            const launchButton = document.getElementById('launch-button');
+            const riverContainer = document.getElementById('river-container');
+            const messageBox = document.getElementById('message-box');
+            const fireworksContainer = document.getElementById('fireworks-container');
+
+            // --- INITIALIZATION ---
+
+            // Populate Krathong choices
+            krathongImages.forEach((imgName, index) => {
+                const fullSrc = `${GITHUB_IMAGE_PATH}${imgName}`;
+                const div = document.createElement('div');
+                div.className = 'cursor-pointer p-2 bg-white/10 rounded-lg hover:bg-white/20 transition duration-300';
+                div.innerHTML = `<img src="${fullSrc}" alt="กระทงแบบที่ ${index + 1}" class="w-full h-auto rounded-md">`;
+                div.addEventListener('click', () => {
+                    // Remove selection from others
+                    document.querySelectorAll('#krathong-selection div').forEach(el => el.classList.remove('selected-krathong'));
+                    // Add selection to clicked item
+                    div.classList.add('selected-krathong');
+                    selectedKrathongSrc = fullSrc;
+                });
+                krathongSelectionContainer.appendChild(div);
             });
-        });
+            
+            // Create and launch fireworks
+            for (let i = 0; i < NUM_FIREWORKS; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.top = `${Math.random() * 50}%`;
+                firework.style.left = `${Math.random() * 100}%`;
+                firework.style.animationDelay = `${Math.random() * 5}s`;
+                fireworksContainer.appendChild(firework);
+            }
 
-        // เลือกดอกไม้ - Select Flowers
-        document.querySelectorAll('.flower-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const flowerType = this.dataset.flower;
-                const errorMsg = document.getElementById('flower-error');
+            // --- EVENT LISTENERS ---
+
+            // Launch button click handler
+            launchButton.addEventListener('click', () => {
+                if (!selectedKrathongSrc) {
+                    showMessage('กรุณาเลือกกระทงของคุณก่อนลอย');
+                    return;
+                }
+
+                const name = document.getElementById('user-name').value;
+                const wish = document.getElementById('user-wish').value;
+                const addCandle = document.getElementById('add-candle').checked;
+
+                createAndFloatKrathong(selectedKrathongSrc, name, wish, addCandle);
+            });
+
+            // --- FUNCTIONS ---
+            
+            /**
+             * Creates a krathong element with customizations and floats it.
+             * @param {string} krathongSrc - The source URL of the main krathong image.
+             * @param {string} name - The user's name.
+             * @param {string} wish - The user's wish.
+             * @param {boolean} hasCandle - Whether to add a candle.
+             */
+            function createAndFloatKrathong(krathongSrc, name, wish, hasCandle) {
+                const krathongContainer = document.createElement('div');
+                krathongContainer.className = 'floating-krathong';
                 
-                if (this.classList.contains('selected')) {
-                    // ยกเลิกการเลือก - Deselect
-                    selectedFlowers[flowerType]--;
-                    totalFlowers--;
-                    
-                    if (selectedFlowers[flowerType] === 0) {
-                        this.classList.remove('selected');
-                        this.querySelector('.flower-count').style.display = 'none';
-                        delete selectedFlowers[flowerType];
-                    } else {
-                        this.querySelector('.flower-count').textContent = selectedFlowers[flowerType];
-                    }
-                    errorMsg.classList.remove('show');
-                } else {
-                    // เลือกดอกไม้ใหม่ - Select New Flower
-                    if (totalFlowers >= 5) {
-                        errorMsg.classList.add('show');
-                        setTimeout(() => errorMsg.classList.remove('show'), 3000);
-                        return;
-                    }
-                    
-                    if (!selectedFlowers[flowerType]) {
-                        selectedFlowers[flowerType] = 0;
-                    }
-                    
-                    selectedFlowers[flowerType]++;
-                    totalFlowers++;
-                    
-                    this.classList.add('selected');
-                    const countSpan = this.querySelector('.flower-count');
-                    countSpan.textContent = selectedFlowers[flowerType];
-                    countSpan.style.display = 'flex';
+                // Add random horizontal drift to animation
+                const randomDrift = (Math.random() - 0.5) * 200; // -100px to +100px
+                krathongContainer.style.setProperty('--float-direction', `${randomDrift}px`);
+
+                // Main krathong image
+                const krathongImg = document.createElement('img');
+                krathongImg.src = krathongSrc;
+                krathongImg.alt = 'กระทงลอยน้ำ';
+                krathongContainer.appendChild(krathongImg);
+                
+                // Add candle if selected
+                if(hasCandle) {
+                    const candleImg = document.createElement('img');
+                    candleImg.src = candleImageSrc;
+                    candleImg.alt = ''; // Decorative
+                    candleImg.className = 'absolute w-1/2 top-[-30%] left-1/2 -translate-x-1/2';
+                    krathongContainer.appendChild(candleImg);
                 }
-            });
+
+                // Add text (name and wish)
+                const textContainer = document.createElement('div');
+                textContainer.className = 'absolute -top-12 left-1/2 -translate-x-1/2 w-max max-w-xs text-center p-2 bg-black/50 rounded-md';
+                
+                if (name) {
+                    const nameEl = document.createElement('p');
+                    nameEl.className = 'font-bold text-yellow-300 text-sm';
+                    nameEl.textContent = name;
+                    textContainer.appendChild(nameEl);
+                }
+
+                if (wish) {
+                     const wishEl = document.createElement('p');
+                     wishEl.className = 'text-xs text-white';
+                     wishEl.textContent = wish;
+                     textContainer.appendChild(wishEl);
+                }
+
+                if(name || wish) {
+                    krathongContainer.appendChild(textContainer);
+                }
+
+                riverContainer.appendChild(krathongContainer);
+
+                // Clean up the DOM after animation finishes
+                setTimeout(() => {
+                    krathongContainer.remove();
+                }, 15000); // Match animation duration
+            }
+
+            /**
+             * Shows a message box for a short duration.
+             * @param {string} text - The message to display.
+             */
+            function showMessage(text) {
+                messageBox.textContent = text;
+                messageBox.classList.remove('hidden');
+                setTimeout(() => {
+                    messageBox.classList.add('hidden');
+                }, 3000);
+            }
         });
-
-        // ลอยกระทง - Float Krathong Function
-        function floatKrathong() {
-            // ตรวจสอบข้อมูล - Validate Data
-            if (!selectedMaterial) {
-                alert('กรุณาเลือกวัสดุฐานกระทง');
-                return;
-            }
-            
-            if (totalFlowers === 0) {
-                alert('กรุณาเลือกดอกไม้อย่างน้อย 1 ดอก');
-                return;
-            }
-
-            const candleCount = parseInt(document.getElementById('candle-count').value);
-            const wishText = document.getElementById('wish-text').value.trim();
-            const makerName = document.getElementById('maker-name').value.trim();
-
-            if (!makerName) {
-                alert('กรุณาพิมพ์ชื่อผู้สร้างกระทง');
-                return;
-            }
-
-            // สร้างกระทง - Create Krathong
-            const krathong = document.createElement('div');
-            krathong.className = 'krathong';
-
-            // ฐานกระทง - Krathong Base
-            const base = document.createElement('div');
-            base.className = `krathong-base base-${selectedMaterial}`;
-
-            // ดอกไม้ - Flowers
-            const flowersContainer = document.createElement('div');
-            flowersContainer.className = 'krathong-flowers';
-
-            for (let flowerType in selectedFlowers) {
-                for (let i = 0; i < selectedFlowers[flowerType]; i++) {
-                    const flower = document.createElement('div');
-                    flower.className = `flower flower-${flowerType}`;
-                    flowersContainer.appendChild(flower);
-                }
-            }
-
-            // เทียน - Candles
-            const candlesContainer = document.createElement('div');
-            candlesContainer.className = 'krathong-candles';
-
-            for (let i = 0; i < candleCount; i++) {
-                const candle = document.createElement('div');
-                candle.className = 'candle';
-                const flame = document.createElement('div');
-                flame.className = 'flame';
-                candle.appendChild(flame);
-                candlesContainer.appendChild(candle);
-            }
-
-            // คำอธิษฐาน - Wish Text (truncate to 2 lines)
-            const wishElement = document.createElement('div');
-            wishElement.className = 'krathong-wish';
-            wishElement.textContent = wishText || 'ขอให้สิ่งดีๆ มาเยือน';
-
-            // ชื่อผู้สร้าง - Maker Name
-            const makerElement = document.createElement('div');
-            makerElement.className = 'krathong-maker';
-            makerElement.textContent = makerName;
-
-            // ระลอกคลื่น - Ripple Effect
-            const ripple = document.createElement('div');
-            ripple.className = 'ripple';
-
-            // ประกอบกระทง - Assemble Krathong
-            base.appendChild(flowersContainer);
-            base.appendChild(candlesContainer);
-            krathong.appendChild(base);
-            krathong.appendChild(wishElement);
-            krathong.appendChild(makerElement);
-            krathong.appendChild(ripple);
-
-            // เลือกทิศทางแบบสุ่ม - Random Direction
-            const directions = ['float-forward', 'float-left', 'float-right'];
-            const randomDirection = directions[Math.floor(Math.random() * directions.length)];
-            
-            // ระยะเวลาแบบสุ่ม 10-15 วินาที - Random Duration 10-15 seconds
-            const randomDuration = (Math.random() * 5 + 10).toFixed(1);
-            
-            krathong.style.animation = `${randomDirection} ${randomDuration}s ease-out forwards`;
-
-            // เพิ่มกระทงลงแม่น้ำ - Add to River
-            document.getElementById('river').appendChild(krathong);
-
-            // ลบกระทงหลังแอนิเมชั่นจบ - Remove After Animation
-            setTimeout(() => {
-                krathong.remove();
-            }, parseFloat(randomDuration) * 1000);
-        }
-
-        // ล้างแม่น้ำ - Reset River
-        function resetRiver() {
-            document.getElementById('river').innerHTML = '';
-        }
-
-        // เริ่มต้น - Initialize
-        createStars();
     </script>
+
 </body>
 </html>
