@@ -123,7 +123,7 @@
     </div>
     
     <!-- Main content container -->
-    <div class="relative min-h-screen flex flex-col items-center justify-between p-4 z-20">
+    <div id="main-content" class="relative min-h-screen flex flex-col items-center justify-between p-4 z-20">
 
         <!-- Header -->
         <header class="text-center py-4 md:py-8">
@@ -138,7 +138,7 @@
             <div>
                 <h2 class="text-2xl font-semibold mb-4 text-yellow-200">๑. เลือกกระทงของคุณ</h2>
                 <div id="krathong-selection" class="grid grid-cols-3 md:grid-cols-5 gap-4">
-                    <!-- Krathong options will be dynamically inserted here by JavaScript -->
+                    <!-- Krathong options will be dynamically inserted here -->
                 </div>
             </div>
 
@@ -172,34 +172,56 @@
                     ลอยกระทง
                 </button>
             </div>
-
         </main>
         
         <!-- Footer -->
         <footer class="py-4 text-center text-sm text-white/60">
             <p>&copy; 2568 - สร้างสรรค์โดย Gemini</p>
         </footer>
+    </div>
 
+    <!-- Floating UI -->
+    <div id="floating-view" class="hidden z-30 fixed top-5 left-5">
+        <button id="back-button" class="bg-cyan-500 hover:bg-cyan-400 text-white font-bold px-6 py-2 rounded-full shadow-lg">
+            &larr; กลับไปสร้างกระทง
+        </button>
     </div>
     
-    <!-- Message display for errors -->
+    <!-- Message display -->
     <div id="message-box" class="hidden fixed top-5 right-5 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50">
         <p>กรุณาเลือกกระทงก่อน</p>
     </div>
 
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- CONFIGURATION ---
-            const GITHUB_IMAGE_PATH = 'https://raw.githubusercontent.com/gemini-demos/loy-krathong-assets/main/';
-            const krathongImages = [
-                'krathong_1.png', 'krathong_2.png', 'krathong_3.png', 'krathong_4.png', 'krathong_5.png'
-            ];
-            const candleImageSrc = `${GITHUB_IMAGE_PATH}candle.png`;
-            const NUM_FIREWORKS = 15;
+        // --- CONFIGURATION ---
+        const GITHUB_IMAGE_PATH = 'https://raw.githubusercontent.com/nujsarin/loi-kratong/main/';
+        const krathongImages = [
+            'unnamed (1).png', 'unnamed (2).png', 'unnamed (3).png', 'unnamed (4).png', 'unnamed (5).png'
+        ];
+        // Assuming you will add 'candle.png' to your repository
+        const candleImageSrc = `${GITHUB_IMAGE_PATH}candle.png`; 
+        const NUM_FIREWORKS = 15;
+        
+        // This configuration is public and safe to expose.
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
+
+        async function main() {
             // --- STATE ---
             let selectedKrathongSrc = null;
+            let db;
 
             // --- DOM ELEMENTS ---
             const krathongSelectionContainer = document.getElementById('krathong-selection');
@@ -207,19 +229,32 @@
             const riverContainer = document.getElementById('river-container');
             const messageBox = document.getElementById('message-box');
             const fireworksContainer = document.getElementById('fireworks-container');
+            const mainContent = document.getElementById('main-content');
+            const floatingView = document.getElementById('floating-view');
+            const backButton = document.getElementById('back-button');
 
-            // --- INITIALIZATION ---
+            // --- FIREBASE INITIALIZATION ---
+            try {
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                db = getFirestore(app);
+                await signInAnonymously(auth);
+                console.log("Firebase initialized and user signed in anonymously.");
+                listenForKrathongs();
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                showMessage("ไม่สามารถเชื่อมต่อเซิฟเวอร์ได้", true);
+            }
 
+            // --- UI INITIALIZATION ---
             // Populate Krathong choices
             krathongImages.forEach((imgName, index) => {
                 const fullSrc = `${GITHUB_IMAGE_PATH}${imgName}`;
                 const div = document.createElement('div');
                 div.className = 'cursor-pointer p-2 bg-white/10 rounded-lg hover:bg-white/20 transition duration-300';
-                div.innerHTML = `<img src="${fullSrc}" alt="กระทงแบบที่ ${index + 1}" class="w-full h-auto rounded-md">`;
+                div.innerHTML = `<img src="${fullSrc}" alt="กระทงแบบที่ ${index + 1}" class="w-full h-auto rounded-md" onerror="this.style.display='none'">`;
                 div.addEventListener('click', () => {
-                    // Remove selection from others
                     document.querySelectorAll('#krathong-selection div').forEach(el => el.classList.remove('selected-krathong'));
-                    // Add selection to clicked item
                     div.classList.add('selected-krathong');
                     selectedKrathongSrc = fullSrc;
                 });
@@ -237,9 +272,14 @@
             }
 
             // --- EVENT LISTENERS ---
+            launchButton.addEventListener('click', handleLaunch);
+            backButton.addEventListener('click', () => {
+                mainContent.classList.remove('hidden');
+                floatingView.classList.add('hidden');
+            });
 
-            // Launch button click handler
-            launchButton.addEventListener('click', () => {
+            // --- FUNCTIONS ---
+            async function handleLaunch() {
                 if (!selectedKrathongSrc) {
                     showMessage('กรุณาเลือกกระทงของคุณก่อนลอย');
                     return;
@@ -248,43 +288,59 @@
                 const name = document.getElementById('user-name').value;
                 const wish = document.getElementById('user-wish').value;
                 const addCandle = document.getElementById('add-candle').checked;
+                
+                const krathongData = {
+                    krathongSrc: selectedKrathongSrc,
+                    name: name,
+                    wish: wish,
+                    hasCandle: addCandle,
+                    createdAt: serverTimestamp(),
+                    randomDrift: (Math.random() - 0.5) * 200 // Pre-calculate drift
+                };
 
-                createAndFloatKrathong(selectedKrathongSrc, name, wish, addCandle);
-            });
+                try {
+                    await addDoc(collection(db, "krathongs"), krathongData);
+                    mainContent.classList.add('hidden');
+                    floatingView.classList.remove('hidden');
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                    showMessage("เกิดข้อผิดพลาดในการลอยกระทง", true);
+                }
+            }
 
-            // --- FUNCTIONS ---
+            function listenForKrathongs() {
+                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+                const q = query(collection(db, "krathongs"), where("createdAt", ">", fiveMinutesAgo));
+
+                onSnapshot(q, (snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === "added") {
+                           createAndFloatKrathong(change.doc.data());
+                        }
+                    });
+                });
+            }
             
-            /**
-             * Creates a krathong element with customizations and floats it.
-             * @param {string} krathongSrc - The source URL of the main krathong image.
-             * @param {string} name - The user's name.
-             * @param {string} wish - The user's wish.
-             * @param {boolean} hasCandle - Whether to add a candle.
-             */
-            function createAndFloatKrathong(krathongSrc, name, wish, hasCandle) {
+            function createAndFloatKrathong(data) {
+                const { krathongSrc, name, wish, hasCandle, randomDrift } = data;
+                
                 const krathongContainer = document.createElement('div');
                 krathongContainer.className = 'floating-krathong';
-                
-                // Add random horizontal drift to animation
-                const randomDrift = (Math.random() - 0.5) * 200; // -100px to +100px
-                krathongContainer.style.setProperty('--float-direction', `${randomDrift}px`);
+                krathongContainer.style.setProperty('--float-direction', `${randomDrift || 0}px`);
 
-                // Main krathong image
                 const krathongImg = document.createElement('img');
                 krathongImg.src = krathongSrc;
                 krathongImg.alt = 'กระทงลอยน้ำ';
                 krathongContainer.appendChild(krathongImg);
                 
-                // Add candle if selected
                 if(hasCandle) {
                     const candleImg = document.createElement('img');
                     candleImg.src = candleImageSrc;
-                    candleImg.alt = ''; // Decorative
+                    candleImg.alt = '';
                     candleImg.className = 'absolute w-1/2 top-[-30%] left-1/2 -translate-x-1/2';
                     krathongContainer.appendChild(candleImg);
                 }
 
-                // Add text (name and wish)
                 const textContainer = document.createElement('div');
                 textContainer.className = 'absolute -top-12 left-1/2 -translate-x-1/2 w-max max-w-xs text-center p-2 bg-black/50 rounded-md';
                 
@@ -308,25 +364,20 @@
 
                 riverContainer.appendChild(krathongContainer);
 
-                // Clean up the DOM after animation finishes
-                setTimeout(() => {
-                    krathongContainer.remove();
-                }, 15000); // Match animation duration
+                setTimeout(() => krathongContainer.remove(), 15000);
             }
 
-            /**
-             * Shows a message box for a short duration.
-             * @param {string} text - The message to display.
-             */
-            function showMessage(text) {
+            function showMessage(text, isError = false) {
                 messageBox.textContent = text;
-                messageBox.classList.remove('hidden');
-                setTimeout(() => {
-                    messageBox.classList.add('hidden');
-                }, 3000);
+                messageBox.classList.remove('hidden', 'bg-red-600', 'bg-green-600');
+                messageBox.classList.add(isError ? 'bg-red-600' : 'bg-green-600');
+                setTimeout(() => messageBox.classList.add('hidden'), 3000);
             }
-        });
-    </script>
+        }
 
+        // Run the app
+        main();
+    </script>
 </body>
 </html>
+
