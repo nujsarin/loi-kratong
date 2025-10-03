@@ -244,9 +244,15 @@
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const GITHUB_IMAGE_PATH = 'https://raw.githubusercontent.com/nujsarin/loi-kratong/main/';
-        const krathongImages = ['unnamed (1).png', 'unnamed (2).png', 'unnamed (3).png', 'unnamed (4).png', 'unnamed (5).png'];
-        const candleImageSrc = `${GITHUB_IMAGE_PATH}candle.png`; 
+       const GITHUB_IMAGE_PATH = 'https://raw.githubusercontent.com/nuj­sarin/loi-kratong/main/';
+
+        const krathongImages = [
+            'unnamed (1).png',
+            'unnamed (2).png',
+            'unnamed (3).png',
+            'unnamed (4).png',
+            'unnamed (5).png'
+        ];
         const khomLoiImageSrc = `https://raw.githubusercontent.com/nujsarin/loi-kratong/main/khomloi.png`;
         const NUM_FIREWORKS = 15;
         const NUM_LANTERNS = 10;
